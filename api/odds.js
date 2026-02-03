@@ -1,16 +1,24 @@
 export default async function handler(req, res) {
+  // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
+  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
   
-  const { sport, apiKey } = req.query;
+  // Get parameters from query string
+  const apiKey = req.query.apiKey;
+  const sport = req.url.split('/').pop().split('?')[0]; // Extract sport from URL
   
-  if (!apiKey || !sport) {
-    return res.status(400).json({ error: 'Missing apiKey or sport parameter' });
+  if (!apiKey) {
+    return res.status(400).json({ error: 'Missing apiKey parameter' });
+  }
+  
+  if (!sport || sport === 'odds') {
+    return res.status(400).json({ error: 'Missing sport in URL. Use /api/odds/basketball_nba?apiKey=YOUR_KEY' });
   }
   
   try {
@@ -20,7 +28,11 @@ export default async function handler(req, res) {
     
     if (!response.ok) {
       const errorText = await response.text();
-      return res.status(response.status).json({ error: errorText });
+      return res.status(response.status).json({ 
+        error: 'The Odds API Error',
+        status: response.status,
+        message: errorText 
+      });
     }
     
     const data = await response.json();
@@ -28,31 +40,9 @@ export default async function handler(req, res) {
     
   } catch (error) {
     console.error('Proxy error:', error);
-    return res.status(500).json({ error: 'Proxy server error' });
+    return res.status(500).json({ 
+      error: 'Proxy server error',
+      message: error.message 
+    });
   }
 }
-```
-4. Click **"Commit changes"**
-
-### **Step 3: Wait for Vercel to Redeploy**
-
-Vercel will automatically detect the changes and redeploy (takes about 30 seconds).
-
-### **Step 4: Test Again**
-
-Once deployed, test this URL (replace `YOUR_API_KEY`):
-```
-https://odds-api-proxy.vercel.app/api/odds/basketball_nba?apiKey=YOUR_API_KEY
-```
-
-You should now see JSON data!
-
----
-
-## **Your Final GitHub Structure Should Look Like:**
-```
-odds-api-proxy/
-├── api/
-│   └── odds.js          (no .rtf!)
-├── package.json         (no .rtf!)
-└── vercel.json          (no .rtf!)
