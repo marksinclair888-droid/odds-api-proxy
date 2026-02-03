@@ -5,28 +5,4 @@
     }
   }
 }
-```
 
-5. Click **"Commit changes"**
-
----
-
-## **Wait and Test**
-
-Wait 30-60 seconds for Vercel to redeploy.
-
-Then test this URL:
-```
-https://odds-api-proxy.vercel.app/api/odds/basketball_nba?apiKey=253bb00cca73b4e27e71866ba6e884cf
-```
-
----
-
-## **Your Current Structure Should Be:**
-```
-odds-api-proxy/
-├── api/
-│   └── odds/
-│       └── [sport].js
-├── package.json (with "node": "24.x")
-└── vercel.json (with "api/odds/[sport].js")
